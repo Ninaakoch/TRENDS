@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Europe demand tracker</title>
+<meta name="description" content="Weekly Google search interest for everyday consumer products in five European markets.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ECEDE6;
+    --surface: #F6F6F1;
+    --ink: #22261F;
+    --ink-2: #5C6357;
+    --rule: #D2D5C8;
+    --indigo: #3B4A7A;
+    --up: #37694A;
+    --down: #A24457;
+    --display: "Gloock", Georgia, "Times New Roman", serif;
+    --text: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+    color-scheme: light;
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 400 1rem/1.5 var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible { outline: 2px solid var(--indigo); outline-offset: 3px; border-radius: 2px; }
+
+  .page { max-width: 62rem; margin: 0 auto; padding: 3rem 1rem 4rem; }
+  @media (min-width: 40rem) { .page { padding: 4.5rem 2rem 5rem; } }
+
+  .sr {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0 0 0 0); white-space: nowrap;
+  }
+
+  h1 {
+    font: 400 clamp(2.4rem, 7vw, 4.25rem)/1 var(--display);
+    letter-spacing: -0.015em;
+    margin: 0 0 1rem;
+  }
+  .lede { max-width: 32rem; margin: 0; color: var(--ink-2); font-size: 1.0625rem; }
+  .stamp { margin: 0.5rem 0 0; font-size: 0.875rem; color: var(--ink-2); }
+
+  .markets {
+    display: flex; flex-wrap: wrap; gap: 0.25rem 1.5rem;
+    margin-top: 2.5rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .markets button {
+    appearance: none; background: none; border: 0; cursor: pointer;
+    border-bottom: 3px solid transparent; margin-bottom: -1px;
+    padding: 0.6rem 0 0.5rem;
+    font: 500 1rem var(--text); color: var(--ink-2);
+  }
+  .markets button:hover { color: var(--ink); }
+  .markets button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--indigo); }
+
+  .headline {
+    font: 400 clamp(1.3rem, 3.2vw, 1.75rem)/1.25 var(--display);
+    max-width: 36rem; margin: 2rem 0 1.5rem;
+  }
+  .headline:empty { display: none; }
+
+  .legend {
+    list-style: none; display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem;
+    margin: 0 0 0.75rem; padding: 0; font-size: 0.9rem; min-height: 1.4em;
+  }
+  .legend li { display: flex; align-items: center; gap: 0.45rem; }
+  .legend i { display: inline-block; width: 1rem; height: 3px; border-radius: 2px; background: var(--c); }
+  .legend .hint { color: var(--ink-2); }
+
+  .chart { position: relative; height: 260px; }
+  @media (min-width: 40rem) { .chart { height: 340px; } }
+
+  .note { margin: 0.75rem 0 0; max-width: 44rem; font-size: 0.875rem; color: var(--ink-2); }
+  .note:empty { display: none; }
+
+  .message { font: 400 1.25rem/1.4 var(--display); max-width: 34rem; margin: 2.5rem 0 0; }
+
+  .ranking { margin-top: 3rem; }
+  .cols {
+    display: grid;
+    grid-template-columns: 1.5rem minmax(0, 1fr) 120px 4.5rem 5.5rem;
+    column-gap: 1rem; align-items: center;
+  }
+  .rank-head { padding: 0 0.75rem 0.5rem; font-size: 0.8125rem; color: var(--ink-2); border-bottom: 1px solid var(--rule); }
+  .rank-head .r { text-align: right; }
+
+  .rows { list-style: none; margin: 0; padding: 0; }
+  .row {
+    width: 100%; text-align: left; position: relative;
+    background: none; border: 0; border-bottom: 1px solid var(--rule);
+    padding: 0.75rem; font: inherit; color: inherit; cursor: pointer;
+  }
+  .row:hover, .row[aria-pressed="true"] { background: var(--surface); }
+  .row[aria-pressed="true"]::before {
+    content: ""; position: absolute; left: 0; top: 0.55rem; bottom: 0.55rem;
+    width: 4px; border-radius: 2px; background: var(--swatch, var(--indigo));
+  }
+
+  .rank { font-size: 0.8125rem; color: var(--ink-2); text-align: right; font-variant-numeric: tabular-nums; }
+  .name { display: flex; flex-direction: column; min-width: 0; }
+  .label { font-weight: 600; }
+  .term { font-size: 0.8125rem; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .spark { display: block; height: 28px; color: var(--ink-2); }
+  .spark svg { display: block; }
+  .row[aria-pressed="true"] .spark { color: var(--swatch, var(--indigo)); }
+
+  .level { display: flex; flex-direction: column; align-items: flex-end; gap: 0.3rem; }
+  .num { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .bar { display: block; width: 100%; height: 3px; border-radius: 2px; background: var(--rule); overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--ink); }
+
+  .change { text-align: right; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .change.up { color: var(--up); }
+  .change.down { color: var(--down); }
+  .change.flat { color: var(--ink-2); }
+
+  @media (max-width: 36rem) {
+    .cols { grid-template-columns: 1.25rem minmax(0, 1fr) 3.5rem 5rem; column-gap: 0.6rem; }
+    .spark, .rank-head .sp { display: none; }
+  }
+
+  footer {
+    margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--rule);
+    max-width: 40rem; color: var(--ink-2); font-size: 0.9rem;
+  }
+  footer p { margin: 0 0 0.75rem; }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <h1>Europe demand tracker</h1>
+    <p class="lede">Weekly Google search interest for everyday consumer products in five European markets, refreshed automatically.</p>
+    <p class="stamp" id="stamp"></p>
+  </header>
+
+  <main id="app" hidden>
+    <div class="markets" id="markets" role="group" aria-label="Market"></div>
+    <p class="headline" id="headline" aria-live="polite"></p>
+
+    <p class="message" id="message" hidden></p>
+
+    <div id="view">
+      <section aria-labelledby="chart-h">
+        <h2 class="sr" id="chart-h">Search interest over time</h2>
+        <ul class="legend" id="legend"></ul>
+        <div class="chart"><canvas id="chart" role="img" aria-label="Line chart of search interest"></canvas></div>
+        <p class="note" id="note"></p>
+      </section>
+
+      <section class="ranking" aria-labelledby="rank-h">
+        <h2 class="sr" id="rank-h">Products ranked by search interest</h2>
+        <div class="cols rank-head" aria-hidden="true">
+          <span></span><span>Product</span><span class="sp">Shape over the year</span><span class="r">Interest</span><span class="r">Change</span>
+        </div>
+        <ol class="rows" id="rows"></ol>
+      </section>
+    </div>
+  </main>
+
+  <div id="empty" hidden>
+    <p class="message">No data yet. In your GitHub repository, open the Actions tab, choose Update trends and select Run workflow. Reload this page when it has finished.</p>
+    <p class="note">Opening this file straight from your computer does not work either, because browsers block local data requests. Use the GitHub Pages link instead.</p>
+  </div>
+
+  <footer>
+    <p>The numbers come from Google Trends. They measure what people search for, not what they buy, which makes them an early signal of demand rather than a sales figure.</p>
+    <p>Each market is scaled so its most searched product scores 100, so markets cannot be compared on volume. Europe is the average of the market scales.</p>
+    <p>Google compares five terms at a time. Products are chained through one reference product (<span id="anchor">the first one in the list</span>), so small products are approximate.</p>
+    <p>Changes compare the latest weeks with the weeks before and include seasonality: coats rise every autumn.</p>
+  </footer>
+</div>
+
+<script src="vendor/chart.umd.js"></script>
+<script>
+(() => {
+  const MIN_LEVEL = 5;       // ignore tiny products when naming the biggest riser
+  const MAX_SELECTED = 6;
+  const COLORS = ["#3B4A7A", "#C2851A", "#A24457", "#4F7B5C", "#6D5A8C", "#2F7F86"];
+  const reduceMotion = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+  const $ = (id) => document.getElementById(id);
+  const fmtDay = (iso) => new Date(iso + "T00:00:00Z").toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+  const fmtMonth = (iso) => new Date(iso + "T00:00:00Z").toLocaleDateString("en-GB", { month: "short", year: "2-digit", timeZone: "UTC" });
+  const fmtStamp = (iso) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+
+  let data = null;
+  let labelOf = {};
+  let markets = [];
+  let current = null;
+  let selected = [];          // [{ key, slot }]  slot = index of the line colour
+  let chart = null;
+  const rowEls = new Map();
+
+  // Small helper to build DOM nodes without innerHTML.
+  function h(tag, props = {}, ...kids) {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(props)) {
+      if (k === "class") el.className = v;
+      else if (k === "text") el.textContent = v;
+      else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v);
+    }
+    kids.flat().forEach((c) => { if (c != null) el.append(c); });
+    return el;
+  }
+
+  // ---- sparkline: a smooth curve through the points (Catmull-Rom converted to Bezier)
+  function smooth(pts, yMin, yMax) {
+    const f = (n) => n.toFixed(1);
+    const clamp = (y) => Math.min(yMax, Math.max(yMin, y));
+    let d = `M${f(pts[0][0])},${f(pts[0][1])}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+      const c1 = [p1[0] + (p2[0] - p0[0]) / 6, clamp(p1[1] + (p2[1] - p0[1]) / 6)];
+      const c2 = [p2[0] - (p3[0] - p1[0]) / 6, clamp(p2[1] - (p3[1] - p1[1]) / 6)];
+      d += ` C${f(c1[0])},${f(c1[1])} ${f(c2[0])},${f(c2[1])} ${f(p2[0])},${f(p2[1])}`;
+    }
+    return d;
+  }
+
+  function sparkSvg(values) {
+    if (values.length < 2) return "";
+    const W = 120, H = 28, pad = 3;
+    const min = Math.min(...values), max = Math.max(...values), span = max - min;
+    const pts = values.map((v, i) => [
+      (i / (values.length - 1)) * W,
+      span ? H - pad - ((v - min) / span) * (H - 2 * pad) : H / 2,
+    ]);
+    return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" aria-hidden="true" focusable="false">` +
+      `<path d="${smooth(pts, pad, H - pad)}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  }
+
+  // ---- number formatting
+  function changeInfo(c, weeks) {
+    if (c == null) return { text: "–", dir: "flat", phrase: "no change figure" };
+    const rounded = Math.round(Math.abs(c));
+    if (rounded === 0) return { text: "0%", dir: "flat", phrase: "flat" };
+    if (c > 0) {
+      const big = c >= 500;
+      return { text: `▲ ${big ? "500%+" : "+" + rounded + "%"}`, dir: "up", phrase: `up ${big ? "more than 500" : rounded}% over ${weeks} weeks` };
+    }
+    return { text: `▼ −${rounded}%`, dir: "down", phrase: `down ${rounded}% over ${weeks} weeks` };
+  }
+  const levelText = (v) => (v < 1 ? "<1" : String(Math.round(v)));
+
+  // ---- selection (which products are drawn on the chart)
+  function addSelected(key) {
+    const used = new Set(selected.map((s) => s.slot));
+    selected.push({ key, slot: COLORS.findIndex((_, i) => !used.has(i)) });
+  }
+
+  function toggle(key) {
+    const i = selected.findIndex((s) => s.key === key);
+    if (i >= 0) selected.splice(i, 1);
+    else {
+      if (selected.length >= MAX_SELECTED) selected.shift();
+      addSelected(key);
+    }
+    paintSelection();
+  }
+
+  function sortedKeys(entry) {
+    return Object.keys(entry.series).sort((a, b) => entry.stats[b].level - entry.stats[a].level);
+  }
+
+  // ---- rendering
+  function buildRows() {
+    const entry = current.entry;
+    const weeks = data.recent_weeks || 4;
+    const list = $("rows");
+    list.replaceChildren();
+    rowEls.clear();
+
+    sortedKeys(entry).forEach((key, i) => {
+      const st = entry.stats[key];
+      const ch = changeInfo(st.change, weeks);
+      const spark = h("span", { class: "spark" });
+      spark.innerHTML = sparkSvg(entry.series[key]);   // numbers only, no user text
+
+      const row = h("button", {
+        type: "button", class: "row cols", "aria-pressed": "false", "data-key": key,
+        "aria-label": `${labelOf[key]}: interest ${levelText(st.level)} out of 100, ${ch.phrase}`,
+        onclick: () => toggle(key),
+      },
+        h("span", { class: "rank", text: String(i + 1) }),
+        h("span", { class: "name" },
+          h("span", { class: "label", text: labelOf[key] || key }),
+          entry.terms && entry.terms[key] ? h("span", { class: "term", text: entry.terms[key] }) : null),
+        spark,
+        h("span", { class: "level" },
+          h("span", { class: "num", text: levelText(st.level) }),
+          h("span", { class: "bar" }, h("i", { style: `width:${Math.min(100, st.level)}%` }))),
+        h("span", { class: `change ${ch.dir}`, text: ch.text }));
+
+      rowEls.set(key, row);
+      list.append(h("li", {}, row));
+    });
+  }
+
+  function paintSelection() {
+    for (const [key, row] of rowEls) {
+      const s = selected.find((x) => x.key === key);
+      row.setAttribute("aria-pressed", s ? "true" : "false");
+      if (s) row.style.setProperty("--swatch", COLORS[s.slot]);
+      else row.style.removeProperty("--swatch");
+    }
+
+    const legend = $("legend");
+    legend.replaceChildren();
+    if (!selected.length) {
+      legend.append(h("li", { class: "hint", text: "Choose products in the list to draw them here." }));
+    }
+    selected.forEach((s) => {
+      legend.append(h("li", {}, h("i", { style: `--c:${COLORS[s.slot]}` }), h("span", { text: labelOf[s.key] || s.key })));
+    });
+
+    drawChart();
+  }
+
+  function drawChart() {
+    const canvas = $("chart");
+    if (typeof Chart === "undefined") { canvas.hidden = true; return; }
+    canvas.hidden = false;
+
+    const entry = current.entry;
+    const datasets = selected.map((s) => ({
+      label: labelOf[s.key] || s.key,
+      data: entry.series[s.key],
+      borderColor: COLORS[s.slot],
+      backgroundColor: COLORS[s.slot],
+      borderWidth: 2.25,
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      tension: 0.35,
+    }));
+    canvas.setAttribute("aria-label", selected.length
+      ? `Line chart of weekly search interest in ${entry.name}: ${datasets.map((d) => d.label).join(", ")}`
+      : "Empty line chart");
+
+    if (chart) {
+      chart.data.labels = entry.dates;
+      chart.data.datasets = datasets;
+      chart.update();
+      return;
+    }
+
+    Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
+    Chart.defaults.font.size = 12;
+    Chart.defaults.color = "#5C6357";
+    chart = new Chart(canvas, {
+      type: "line",
+      data: { labels: entry.dates, datasets },
+      options: {
+        maintainAspectRatio: false,
+        animation: reduceMotion ? false : { duration: 350 },
+        interaction: { mode: "index", intersect: false },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { maxTicksLimit: 7, maxRotation: 0, callback(value) { return fmtMonth(this.getLabelForValue(value)); } },
+          },
+          y: { beginAtZero: true, grace: "8%", border: { display: false }, grid: { color: "#D8DBCF" }, ticks: { maxTicksLimit: 5 } },
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              title: (items) => (items.length ? "Week of " + fmtDay(items[0].label) : ""),
+              label: (item) => `${item.dataset.label}: ${Math.round(item.parsed.y)}`,
+            },
+          },
+        },
+      },
+    });
+  }
+
+  function headlineText() {
+    const entry = current.entry;
+    const weeks = data.recent_weeks || 4;
+    const candidates = Object.entries(entry.stats)
+      .filter(([, s]) => s.level >= MIN_LEVEL && s.change != null)
+      .sort((a, b) => b[1].change - a[1].change);
+    if (!candidates.length) return "";
+    const [key, s] = candidates[0];
+    if (s.change <= 0) return `No product is rising in ${entry.name} over the last ${weeks} weeks.`;
+    const pct = s.change >= 500 ? "more than 500%" : Math.round(s.change) + "%";
+    return `Biggest riser in ${entry.name}: ${labelOf[key] || key}, up ${pct} over the last ${weeks} weeks.`;
+  }
+
+  function noteText() {
+    const e = current.entry;
+    const parts = [];
+    if (e.status === "stale" && e.updated) parts.push(`Showing data from ${fmtStamp(e.updated)}. The latest refresh for this market failed.`);
+    if (e.markets && e.markets.length) {
+      parts.push("Average of the market scales for " + new Intl.ListFormat("en-GB", { style: "long", type: "conjunction" }).format(e.markets) + ".");
+    }
+    if (e.warnings && e.warnings.length) parts.push(...e.warnings);
+    return parts.join(" ");
+  }
+
+  function selectMarket(id) {
+    current = markets.find((m) => m.id === id);
+    const entry = current.entry;
+
+    document.querySelectorAll("#markets button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.id === id)));
+
+    const hasData = entry.series && Object.keys(entry.series).length > 0;
+    $("view").hidden = !hasData;
+    $("message").hidden = hasData;
+    if (!hasData) {
+      $("message").textContent = `No data for ${entry.name} yet.${entry.message ? " " + entry.message : ""}`;
+      $("headline").textContent = "";
+      return;
+    }
+
+    selected = selected.filter((s) => s.key in entry.series);
+    if (!selected.length) sortedKeys(entry).slice(0, 4).forEach(addSelected);
+
+    $("headline").textContent = headlineText();
+    $("note").textContent = noteText();
+    buildRows();
+    paintSelection();
+  }
+
+  function showEmpty() {
+    $("app").hidden = true;
+    $("empty").hidden = false;
+  }
+
+  function start(json) {
+    data = json;
+    labelOf = Object.fromEntries((json.products || []).map((p) => [p.key, p.label]));
+    if (labelOf[json.anchor]) $("anchor").textContent = labelOf[json.anchor].toLowerCase();
+    if (json.generated) $("stamp").textContent = `Last refresh: ${fmtStamp(json.generated)}`;
+
+    const hasSeries = (e) => e && e.series && Object.keys(e.series).length > 0;
+    markets = [];
+    if (hasSeries(json.europe)) markets.push({ id: "europe", entry: json.europe });
+    Object.entries(json.countries || {}).forEach(([geo, entry]) => markets.push({ id: geo, entry }));
+    if (!markets.some((m) => hasSeries(m.entry))) return showEmpty();
+
+    const nav = $("markets");
+    markets.forEach((m) => nav.append(h("button", {
+      type: "button", "aria-pressed": "false", "data-id": m.id, text: m.entry.name,
+      onclick: () => selectMarket(m.id),
+    })));
+
+    $("app").hidden = false;
+    selectMarket(markets.find((m) => hasSeries(m.entry)).id);
+  }
+
+  fetch("data/trends.json", { cache: "no-store" })
+    .then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+    .then(start)
+    .catch((err) => { console.error(err); showEmpty(); });
+})();
+</script>
+</body>
+</html>
