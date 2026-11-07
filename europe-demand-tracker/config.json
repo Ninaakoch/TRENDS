@@ -1,0 +1,79 @@
+{
+  "timeframe": "today 12-m",
+  "recent_weeks": 4,
+  "anchor": "coffee-machine",
+  "countries": {
+    "FR": "France",
+    "IT": "Italy",
+    "DE": "Germany",
+    "ES": "Spain",
+    "GB": "United Kingdom"
+  },
+  "products": [
+    {
+      "key": "coffee-machine",
+      "label": "Coffee machine",
+      "terms": {"FR": "machine à café", "IT": "macchina caffè", "DE": "kaffeemaschine", "ES": "cafetera", "GB": "coffee machine"}
+    },
+    {
+      "key": "air-fryer",
+      "label": "Air fryer",
+      "terms": {"FR": "friteuse sans huile", "IT": "friggitrice ad aria", "DE": "heißluftfritteuse", "ES": "freidora de aire", "GB": "air fryer"}
+    },
+    {
+      "key": "robot-vacuum",
+      "label": "Robot vacuum",
+      "terms": {"FR": "aspirateur robot", "IT": "robot aspirapolvere", "DE": "saugroboter", "ES": "robot aspirador", "GB": "robot vacuum"}
+    },
+    {
+      "key": "sneakers",
+      "label": "Sneakers",
+      "terms": {"FR": "sneakers", "IT": "sneakers", "DE": "sneaker", "ES": "zapatillas deportivas", "GB": "trainers"}
+    },
+    {
+      "key": "puffer-jacket",
+      "label": "Puffer jacket",
+      "terms": {"FR": "doudoune", "IT": "piumino", "DE": "daunenjacke", "ES": "plumífero", "GB": "puffer jacket"}
+    },
+    {
+      "key": "wireless-earbuds",
+      "label": "Wireless earbuds",
+      "terms": {"FR": "écouteurs bluetooth", "IT": "auricolari bluetooth", "DE": "bluetooth kopfhörer", "ES": "auriculares bluetooth", "GB": "wireless earbuds"}
+    },
+    {
+      "key": "smartwatch",
+      "label": "Smartwatch",
+      "terms": {"FR": "montre connectée", "IT": "smartwatch", "DE": "smartwatch", "ES": "smartwatch", "GB": "smartwatch"}
+    },
+    {
+      "key": "e-bike",
+      "label": "E-bike",
+      "terms": {"FR": "vélo électrique", "IT": "bici elettrica", "DE": "e-bike", "ES": "bicicleta eléctrica", "GB": "electric bike"}
+    },
+    {
+      "key": "protein-powder",
+      "label": "Protein powder",
+      "terms": {"FR": "whey protéine", "IT": "proteine whey", "DE": "proteinpulver", "ES": "proteína whey", "GB": "protein powder"}
+    },
+    {
+      "key": "handbag",
+      "label": "Handbag",
+      "terms": {"FR": "sac à main", "IT": "borse donna", "DE": "handtasche", "ES": "bolso", "GB": "handbag"}
+    },
+    {
+      "key": "mattress",
+      "label": "Mattress",
+      "terms": {"FR": "matelas", "IT": "materasso", "DE": "matratze", "ES": "colchón", "GB": "mattress"}
+    },
+    {
+      "key": "gaming-laptop",
+      "label": "Gaming laptop",
+      "terms": {"FR": "pc portable gamer", "IT": "notebook gaming", "DE": "gaming laptop", "ES": "portátil gaming", "GB": "gaming laptop"}
+    },
+    {
+      "key": "perfume",
+      "label": "Perfume",
+      "terms": {"FR": "parfum", "IT": "profumo", "DE": "parfum", "ES": "perfume", "GB": "perfume"}
+    }
+  ]
+}
